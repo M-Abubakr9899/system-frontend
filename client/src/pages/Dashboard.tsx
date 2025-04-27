@@ -33,16 +33,29 @@ const Dashboard: React.FC = () => {
     queryKey: ['/api/tasks'],
   });
   
+  // Use state to manage ordered tasks
+  const [orderedTasks, setOrderedTasks] = React.useState<Task[]>([]);
+  
+  // Update orderedTasks when tasks change
+  React.useEffect(() => {
+    if (tasks) {
+      setOrderedTasks([...tasks]);
+    }
+  }, [tasks]);
+  
   // Functions for task reordering
   const moveTaskUp = (id: number) => {
-    if (!tasks) return;
-    const taskIndex = tasks.findIndex(t => t.id === id);
+    if (!orderedTasks.length) return;
+    const taskIndex = orderedTasks.findIndex(t => t.id === id);
     if (taskIndex <= 0) return;
     
-    const updatedTasks = [...tasks];
+    const updatedTasks = [...orderedTasks];
     const temp = updatedTasks[taskIndex];
     updatedTasks[taskIndex] = updatedTasks[taskIndex - 1];
     updatedTasks[taskIndex - 1] = temp;
+    
+    // Update the local state for reordering
+    setOrderedTasks(updatedTasks);
     
     // We would need backend support to persist this order
     // For now, update the local state for UI demonstration
@@ -50,14 +63,17 @@ const Dashboard: React.FC = () => {
   };
   
   const moveTaskDown = (id: number) => {
-    if (!tasks) return;
-    const taskIndex = tasks.findIndex(t => t.id === id);
-    if (taskIndex === -1 || taskIndex === tasks.length - 1) return;
+    if (!orderedTasks.length) return;
+    const taskIndex = orderedTasks.findIndex(t => t.id === id);
+    if (taskIndex === -1 || taskIndex === orderedTasks.length - 1) return;
     
-    const updatedTasks = [...tasks];
+    const updatedTasks = [...orderedTasks];
     const temp = updatedTasks[taskIndex];
     updatedTasks[taskIndex] = updatedTasks[taskIndex + 1];
     updatedTasks[taskIndex + 1] = temp;
+    
+    // Update the local state for reordering
+    setOrderedTasks(updatedTasks);
     
     // We would need backend support to persist this order
     // For now, update the local state for UI demonstration
@@ -76,11 +92,29 @@ const Dashboard: React.FC = () => {
   
   // Setup auto reset of tasks at midnight
   useEffect(() => {
+    // Check if we need to reset tasks when component first mounts
+    const checkInitialReset = () => {
+      // Get last reset date from local storage
+      const lastResetDate = localStorage.getItem('lastTaskReset');
+      const now = new Date();
+      const today = now.toDateString();
+      
+      // If we haven't reset today, do it
+      if (lastResetDate !== today) {
+        resetAllTasks();
+        localStorage.setItem('lastTaskReset', today);
+      }
+    };
+    
+    checkInitialReset();
+    
+    // Also set up the interval check for midnight
     const checkTime = () => {
       const now = new Date();
       if (now.getHours() === 0 && now.getMinutes() === 0) {
         // It's midnight - reset tasks
         resetAllTasks();
+        localStorage.setItem('lastTaskReset', now.toDateString());
       }
     };
     
@@ -142,6 +176,9 @@ const Dashboard: React.FC = () => {
   
   const completedTasks = tasks?.filter(task => task.isCompleted)?.length || 0;
   const totalTasks = tasks?.length || 0;
+  
+  // Calculate completion percentage for StatItem
+  const taskCompletionPercentage = totalTasks > 0 ? completedTasks : 0;
   
   return (
     <Layout title="Dashboard" subtitle="Player Status">
@@ -217,14 +254,14 @@ const Dashboard: React.FC = () => {
             <div className="h-16 bg-secondary rounded"></div>
             <div className="h-16 bg-secondary rounded"></div>
           </div>
-        ) : tasks && tasks.length > 0 ? (
+        ) : orderedTasks && orderedTasks.length > 0 ? (
           <div className="space-y-0">
-            {tasks.map((task, index) => (
+            {orderedTasks.map((task, index) => (
               <TaskItem 
                 key={task.id} 
                 task={task} 
                 onMoveUp={index > 0 ? moveTaskUp : undefined}
-                onMoveDown={index < tasks.length - 1 ? moveTaskDown : undefined}
+                onMoveDown={index < orderedTasks.length - 1 ? moveTaskDown : undefined}
               />
             ))}
           </div>
