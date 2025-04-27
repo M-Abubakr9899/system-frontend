@@ -54,7 +54,7 @@ export const StatItem: React.FC<StatItemProps> = ({
         <span className="text-sm text-muted-foreground">{label}</span>
         <span className="text-sm font-medium text-primary">{value}</span>
       </div>
-      {showProgress && max && (
+      {showProgress && max && Number(value) > 0 && (
         <ProgressBar value={Number(value)} max={max} />
       )}
     </div>
