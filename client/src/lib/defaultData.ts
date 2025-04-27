@@ -78,18 +78,7 @@ export const defaultSkills: Omit<Skill, 'id'>[] = [
   }
 ];
 
-export const defaultRules: Omit<Rule, 'id'>[] = [
-  { description: "Follow Time Table", type: "follow", isDefault: true },
-  { description: "No Songs", type: "avoid", isDefault: true },
-  { description: "No Animes", type: "avoid", isDefault: true },
-  { description: "No Reels", type: "avoid", isDefault: true },
-  { description: "Sunnah and Time Sleeping (with Blanket)", type: "follow", isDefault: true },
-  { description: "No staying up unnecessarily", type: "avoid", isDefault: true },
-  { description: "Reduce the frequency of bad habits", type: "follow", isDefault: true },
-  { description: "No Junk or Fast Food", type: "avoid", isDefault: true },
-  { description: "Chew food properly", type: "follow", isDefault: true },
-  { description: "Less talk, with low voice pitch", type: "follow", isDefault: true }
-];
+export const defaultRules: Omit<Rule, 'id'>[] = [];
 
 export const getDefaultWeekData = (): { name: string; percentage: number; isToday: boolean }[] => {
   const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
