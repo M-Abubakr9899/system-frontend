@@ -4,13 +4,16 @@ import { cn } from '@/lib/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
-import { Trash2 } from 'lucide-react';
+import { Trash2, ArrowUp, ArrowDown } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface TaskItemProps {
   task: Task;
+  onMoveUp?: (taskId: number) => void;
+  onMoveDown?: (taskId: number) => void;
 }
 
-const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
+const TaskItem: React.FC<TaskItemProps> = ({ task, onMoveUp, onMoveDown }) => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
@@ -104,14 +107,39 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
           <div className="text-xs text-muted-foreground bg-background px-2 py-1 rounded">
             Daily
           </div>
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-500/10 transition-colors"
-            aria-label="Delete task"
-          >
-            <Trash2 size={16} />
-          </button>
+          <div className="flex space-x-1">
+            {onMoveUp && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-6 w-6 text-muted-foreground hover:text-primary"
+                onClick={() => onMoveUp(task.id)}
+              >
+                <ArrowUp size={14} />
+              </Button>
+            )}
+            
+            {onMoveDown && (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-6 w-6 text-muted-foreground hover:text-primary"
+                onClick={() => onMoveDown(task.id)}
+              >
+                <ArrowDown size={14} />
+              </Button>
+            )}
+            
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-6 w-6 text-muted-foreground hover:text-destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              <Trash2 size={14} />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

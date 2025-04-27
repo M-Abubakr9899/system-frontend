@@ -33,6 +33,37 @@ const Dashboard: React.FC = () => {
     queryKey: ['/api/tasks'],
   });
   
+  // Functions for task reordering
+  const moveTaskUp = (id: number) => {
+    if (!tasks) return;
+    const taskIndex = tasks.findIndex(t => t.id === id);
+    if (taskIndex <= 0) return;
+    
+    const updatedTasks = [...tasks];
+    const temp = updatedTasks[taskIndex];
+    updatedTasks[taskIndex] = updatedTasks[taskIndex - 1];
+    updatedTasks[taskIndex - 1] = temp;
+    
+    // We would need backend support to persist this order
+    // For now, update the local state for UI demonstration
+    queryClient.setQueryData(['/api/tasks'], updatedTasks);
+  };
+  
+  const moveTaskDown = (id: number) => {
+    if (!tasks) return;
+    const taskIndex = tasks.findIndex(t => t.id === id);
+    if (taskIndex === -1 || taskIndex === tasks.length - 1) return;
+    
+    const updatedTasks = [...tasks];
+    const temp = updatedTasks[taskIndex];
+    updatedTasks[taskIndex] = updatedTasks[taskIndex + 1];
+    updatedTasks[taskIndex + 1] = temp;
+    
+    // We would need backend support to persist this order
+    // For now, update the local state for UI demonstration
+    queryClient.setQueryData(['/api/tasks'], updatedTasks);
+  };
+  
   // Calculate daily points (based on today's completed tasks)
   const dayPoints = tasks ? tasks.filter(task => task.isCompleted).length * 10 : 0;
   
@@ -145,7 +176,8 @@ const Dashboard: React.FC = () => {
               <StatItem 
                 label="Tasks Completed" 
                 value={`${completedTasks} / ${totalTasks}`} 
-                max={totalTasks} 
+                max={totalTasks > 0 ? totalTasks : 1} 
+                showProgress={true}
               />
               
               <div>
@@ -187,8 +219,13 @@ const Dashboard: React.FC = () => {
           </div>
         ) : tasks && tasks.length > 0 ? (
           <div className="space-y-0">
-            {tasks.map(task => (
-              <TaskItem key={task.id} task={task} />
+            {tasks.map((task, index) => (
+              <TaskItem 
+                key={task.id} 
+                task={task} 
+                onMoveUp={index > 0 ? moveTaskUp : undefined}
+                onMoveDown={index < tasks.length - 1 ? moveTaskDown : undefined}
+              />
             ))}
           </div>
         ) : (
