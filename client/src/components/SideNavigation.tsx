@@ -100,7 +100,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({ className }) => {
           <ul className="space-y-1">
             <li>
               <Link href="/">
-                <a className={cn(
+                <div className={cn(
                   "w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 transition-colors",
                   location === "/"
                     ? "bg-primary text-white"
@@ -108,12 +108,12 @@ const SideNavigation: React.FC<SideNavigationProps> = ({ className }) => {
                 )}>
                   <LayoutDashboard className="h-5 w-5" />
                   <span>Dashboard</span>
-                </a>
+                </div>
               </Link>
             </li>
             <li>
               <Link href="/timetable">
-                <a className={cn(
+                <div className={cn(
                   "w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 transition-colors",
                   location === "/timetable"
                     ? "bg-primary text-white"
@@ -121,12 +121,12 @@ const SideNavigation: React.FC<SideNavigationProps> = ({ className }) => {
                 )}>
                   <Calendar className="h-5 w-5" />
                   <span>Time Table</span>
-                </a>
+                </div>
               </Link>
             </li>
             <li>
               <Link href="/rules">
-                <a className={cn(
+                <div className={cn(
                   "w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 transition-colors",
                   location === "/rules"
                     ? "bg-primary text-white"
@@ -134,7 +134,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({ className }) => {
                 )}>
                   <Shield className="h-5 w-5" />
                   <span>Rules</span>
-                </a>
+                </div>
               </Link>
             </li>
           </ul>

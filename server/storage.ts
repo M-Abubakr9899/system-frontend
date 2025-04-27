@@ -103,6 +103,19 @@ export class MemStorage implements IStorage {
     if (!user) return undefined;
     
     user.experience += amount;
+    
+    // Check if user should level up
+    const requiredExp = user.level * 100;
+    if (user.experience >= requiredExp) {
+      user.level += 1;
+      user.experience = user.experience - requiredExp;
+    }
+    
+    // If experience goes negative after task unmarking, reset to 0
+    if (user.experience < 0) {
+      user.experience = 0;
+    }
+    
     this.users.set(userId, user);
     return user;
   }
@@ -161,9 +174,14 @@ export class MemStorage implements IStorage {
   async createTask(task: InsertTask & { userId: number }): Promise<Task> {
     const id = this.taskId++;
     const newTask: Task = {
-      ...task,
       id,
+      userId: task.userId,
+      title: task.title,
+      description: task.description || null,
+      duration: task.duration || null,
+      points: task.points || 0,
       isCompleted: false,
+      isDefault: task.isDefault || false,
       createdAt: new Date()
     };
     this.tasks.set(id, newTask);
@@ -221,6 +239,15 @@ export class MemStorage implements IStorage {
     
     skill.level = level;
     skill.experience = experience;
+    
+    // Check if skill should level up
+    if (skill.experience >= skill.maxExperience) {
+      skill.level += 1;
+      skill.experience = skill.experience - skill.maxExperience;
+      // Increase max experience for next level
+      skill.maxExperience = Math.floor(skill.maxExperience * 1.2);
+    }
+    
     this.skills.set(id, skill);
     return skill;
   }

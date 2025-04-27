@@ -88,6 +88,11 @@ export const insertEventSchema = createInsertSchema(events).pick({
 
 // Types
 export type InsertUser = z.infer<typeof insertUserSchema>;
+export type InsertTask = z.infer<typeof insertTaskSchema>;
+export type InsertSkill = z.infer<typeof insertSkillSchema>;
+export type InsertRule = z.infer<typeof insertRuleSchema>;
+export type InsertEvent = z.infer<typeof insertEventSchema>;
+
 export type User = typeof users.$inferSelect;
 export type Task = typeof tasks.$inferSelect;
 export type Skill = typeof skills.$inferSelect;

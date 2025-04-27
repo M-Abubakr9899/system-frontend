@@ -124,6 +124,18 @@ export async function registerRoutes(app: Express): Promise<Server> {
     if (isCompleted && !task.isCompleted) {
       await storage.updateUserPoints(req.userId, task.points);
       await storage.updateUserExperience(req.userId, task.points);
+      
+      // Update skills
+      const skills = await storage.getSkills(req.userId);
+      if (skills.length > 0) {
+        // Update a random skill
+        const randomSkill = skills[Math.floor(Math.random() * skills.length)];
+        await storage.updateSkillLevel(
+          randomSkill.id, 
+          randomSkill.level, 
+          randomSkill.experience + Math.floor(task.points / 2)
+        );
+      }
     }
     // If unmarking as completed, remove points from user
     else if (!isCompleted && task.isCompleted) {
