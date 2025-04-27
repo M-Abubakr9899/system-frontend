@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Layout from '@/components/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Clock, PlusCircle, Trash } from 'lucide-react';
+import { Clock, PlusCircle, Trash, ArrowUp, ArrowDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { 
   Dialog, 
@@ -55,6 +55,30 @@ const TimeTable: React.FC = () => {
   
   const deleteEvent = (id: number) => {
     setEvents(events.filter(event => event.id !== id));
+  };
+  
+  const moveEventUp = (id: number) => {
+    const index = events.findIndex(event => event.id === id);
+    if (index <= 0) return; // Already at the top
+    
+    const newEvents = [...events];
+    const temp = newEvents[index];
+    newEvents[index] = newEvents[index - 1];
+    newEvents[index - 1] = temp;
+    
+    setEvents(newEvents);
+  };
+  
+  const moveEventDown = (id: number) => {
+    const index = events.findIndex(event => event.id === id);
+    if (index === -1 || index === events.length - 1) return; // Already at the bottom
+    
+    const newEvents = [...events];
+    const temp = newEvents[index];
+    newEvents[index] = newEvents[index + 1];
+    newEvents[index + 1] = temp;
+    
+    setEvents(newEvents);
   };
   
   const addEvent = () => {
@@ -137,12 +161,35 @@ const TimeTable: React.FC = () => {
                     )}
                     onClick={() => toggleCompletion(item.id)}
                   />
-                  <button
-                    onClick={() => deleteEvent(item.id)}
-                    className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-500/10"
-                  >
-                    <Trash size={14} />
-                  </button>
+                  
+                  <div className="flex space-x-1">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 text-muted-foreground hover:text-primary"
+                      onClick={() => moveEventUp(item.id)}
+                      disabled={events.indexOf(item) === 0}
+                    >
+                      <ArrowUp size={12} />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 text-muted-foreground hover:text-primary"
+                      onClick={() => moveEventDown(item.id)}
+                      disabled={events.indexOf(item) === events.length - 1}
+                    >
+                      <ArrowDown size={12} />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                      onClick={() => deleteEvent(item.id)}
+                    >
+                      <Trash size={12} />
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
