@@ -95,7 +95,7 @@ const Rules: React.FC = () => {
           ) : rules && rules.length > 0 ? (
             <div className="space-y-0">
               {rules.map(rule => (
-                <RuleItem key={rule.id} rule={rule} showDelete={true} />
+                <RuleItem key={rule.id} rule={rule} showDelete={!rule.isDefault} />
               ))}
             </div>
           ) : (
