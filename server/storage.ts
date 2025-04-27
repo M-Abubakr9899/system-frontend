@@ -226,8 +226,12 @@ export class MemStorage implements IStorage {
   async createSkill(skill: InsertSkill & { userId: number }): Promise<Skill> {
     const id = this.skillId++;
     const newSkill: Skill = {
-      ...skill,
-      id
+      id,
+      userId: skill.userId,
+      name: skill.name,
+      level: skill.level || 1,
+      experience: skill.experience || 0,
+      maxExperience: skill.maxExperience || 100
     };
     this.skills.set(id, newSkill);
     return newSkill;
@@ -270,8 +274,11 @@ export class MemStorage implements IStorage {
   async createRule(rule: InsertRule & { userId: number }): Promise<Rule> {
     const id = this.ruleId++;
     const newRule: Rule = {
-      ...rule,
-      id
+      id,
+      userId: rule.userId,
+      description: rule.description,
+      type: rule.type || "follow",
+      isDefault: rule.isDefault || false
     };
     this.rules.set(id, newRule);
     return newRule;
@@ -295,8 +302,13 @@ export class MemStorage implements IStorage {
   async createEvent(event: InsertEvent & { userId: number }): Promise<Event> {
     const id = this.eventId++;
     const newEvent: Event = {
-      ...event,
-      id
+      id,
+      userId: event.userId,
+      title: event.title,
+      startTime: event.startTime,
+      endTime: event.endTime,
+      category: event.category || "work",
+      description: event.description || null
     };
     this.events.set(id, newEvent);
     return newEvent;
