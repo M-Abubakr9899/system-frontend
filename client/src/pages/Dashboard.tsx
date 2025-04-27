@@ -178,7 +178,7 @@ const Dashboard: React.FC = () => {
   const totalTasks = tasks?.length || 0;
   
   // Calculate completion percentage for StatItem
-  const taskCompletionPercentage = totalTasks > 0 ? completedTasks : 0;
+  const taskCompletionPercentage = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
   
   return (
     <Layout title="Dashboard" subtitle="Player Status">
@@ -213,7 +213,8 @@ const Dashboard: React.FC = () => {
               <StatItem 
                 label="Tasks Completed" 
                 value={`${completedTasks} / ${totalTasks}`} 
-                max={totalTasks > 0 ? totalTasks : 1} 
+                max={100}
+                progress={taskCompletionPercentage}
                 showProgress={true}
               />
               
