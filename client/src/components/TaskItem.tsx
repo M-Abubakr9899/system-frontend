@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
 import { useToast } from '@/hooks/use-toast';
+import { Trash2 } from 'lucide-react';
 
 interface TaskItemProps {
   task: Task;
@@ -24,7 +25,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
       toast({
         title: task.isCompleted ? "Task unmarked" : "Task completed",
         description: `${task.points} points ${task.isCompleted ? 'removed' : 'added'}`,
-        variant: task.isCompleted ? "default" : "success",
+        variant: task.isCompleted ? "default" : "default",
       });
     },
     onError: (error) => {
@@ -36,8 +37,34 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
     }
   });
 
+  const { mutate: deleteTask, isPending: isDeleting } = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest('DELETE', `/api/tasks/${task.id}`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      toast({
+        title: "Task deleted",
+        description: "The task has been successfully removed",
+        variant: "default",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error deleting task",
+        description: String(error),
+        variant: "destructive",
+      });
+    }
+  });
+
   const handleToggleComplete = () => {
     toggleCompletion(!task.isCompleted);
+  };
+
+  const handleDelete = () => {
+    deleteTask();
   };
 
   return (
@@ -55,7 +82,7 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
               { "bg-primary": task.isCompleted }
             )}
             onClick={handleToggleComplete}
-            disabled={isPending}
+            disabled={isPending || isDeleting}
             aria-label={task.isCompleted ? "Mark incomplete" : "Mark complete"}
           />
           <div>
@@ -68,8 +95,18 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
             )}
           </div>
         </div>
-        <div className="text-xs text-muted-foreground bg-background px-2 py-1 rounded">
-          Daily
+        <div className="flex items-center space-x-2">
+          <div className="text-xs text-muted-foreground bg-background px-2 py-1 rounded">
+            Daily
+          </div>
+          <button
+            onClick={handleDelete}
+            disabled={isDeleting}
+            className="text-red-500 hover:text-red-700 p-1 rounded-full hover:bg-red-500/10 transition-colors"
+            aria-label="Delete task"
+          >
+            <Trash2 size={16} />
+          </button>
         </div>
       </div>
     </div>

@@ -11,13 +11,11 @@ import { Textarea } from '@/components/ui/textarea';
 import { StatusCard, StatItem } from '@/components/StatusCard';
 import TaskItem from '@/components/TaskItem';
 import SkillItem from '@/components/SkillItem';
-import { getDefaultWeekData } from '@/lib/defaultData';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Zap, 
   LightbulbIcon, 
-  ClipboardList, 
-  BarChart3
+  ClipboardList
 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
@@ -41,8 +39,6 @@ const Dashboard: React.FC = () => {
     queryKey: ['/api/skills'],
   });
   
-  const weekData = getDefaultWeekData();
-  
   const { mutate: addTask, isPending: isAddingTask } = useMutation({
     mutationFn: async (taskData: typeof newTask) => {
       const res = await apiRequest('POST', '/api/tasks', taskData);
@@ -55,7 +51,7 @@ const Dashboard: React.FC = () => {
       toast({
         title: "Task added",
         description: "New task has been added successfully",
-        variant: "success",
+        variant: "default",
       });
     },
     onError: (error) => {
@@ -79,7 +75,7 @@ const Dashboard: React.FC = () => {
       toast({
         title: "Skill added",
         description: "New skill has been added successfully",
-        variant: "success",
+        variant: "default",
       });
     },
     onError: (error) => {
@@ -120,7 +116,7 @@ const Dashboard: React.FC = () => {
   
   return (
     <Layout title="Dashboard" subtitle="Hunter Status">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         {/* Hunter Status Card */}
         <StatusCard title="Hunter Status" icon={Zap}>
           {isUserLoading ? (
@@ -201,34 +197,6 @@ const Dashboard: React.FC = () => {
               No skills found. Add a new skill to get started.
             </div>
           )}
-        </StatusCard>
-        
-        {/* Weekly Progress Card */}
-        <StatusCard title="Weekly Progress" icon={BarChart3}>
-          <div className="h-48 flex items-end space-x-2">
-            {weekData.map((day, index) => (
-              <div key={index} className="flex flex-col items-center flex-1">
-                <div 
-                  className={`w-full ${day.isToday ? 'bg-primary glow' : 'bg-secondary'} rounded-t-sm`} 
-                  style={{ height: `${day.percentage}%` }}
-                />
-                <p className={`text-xs mt-2 ${day.isToday ? 'text-white' : 'text-muted-foreground'}`}>
-                  {day.name}
-                </p>
-              </div>
-            ))}
-          </div>
-          
-          <div className="mt-6 text-center">
-            <p className="text-sm text-muted-foreground">
-              Today's points: <span className="text-primary font-medium">
-                {user?.points ? user.points % 120 : 0}
-              </span>
-            </p>
-            <p className="text-xs text-muted-foreground mt-1">
-              Keep up the good work!
-            </p>
-          </div>
         </StatusCard>
       </div>
       

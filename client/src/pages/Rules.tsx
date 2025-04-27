@@ -39,7 +39,7 @@ const Rules: React.FC = () => {
       toast({
         title: "Rule added",
         description: "New rule has been added successfully",
-        variant: "success",
+        variant: "default",
       });
     },
     onError: (error) => {
