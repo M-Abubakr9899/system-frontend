@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
-import { LayoutDashboard, Calendar, Shield, Repeat } from 'lucide-react';
+import { LayoutDashboard, Calendar, Shield, Repeat, Dumbbell } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import ProgressBar from './ProgressBar';
 import { cn } from '@/lib/utils';
@@ -70,21 +70,22 @@ const SideNavigation: React.FC<SideNavigationProps> = ({ className }) => {
               </span>
             </div>
             <div>
-              <h3 className="font-medium text-foreground">Hunter</h3>
+              <h3 className="font-medium text-foreground">Player</h3>
               <p className="text-xs text-muted-foreground">Level <span>{!isLoading && user ? user.level : "?"}</span></p>
             </div>
           </div>
           
           <div className="mt-4">
-            <p className="text-xs text-muted-foreground mb-1">Experience</p>
+            <p className="text-xs text-muted-foreground mb-1">Total Points</p>
             {!isLoading && user ? (
               <>
                 <ProgressBar 
-                  value={user.experience} 
-                  max={user.level * 100} 
+                  value={user.points % 100} 
+                  max={100} 
+                  glowing={true}
                 />
                 <p className="text-xs text-right mt-1 text-muted-foreground">
-                  {user.experience} / {user.level * 100}
+                  {user.points} points total
                 </p>
               </>
             ) : (
@@ -137,6 +138,19 @@ const SideNavigation: React.FC<SideNavigationProps> = ({ className }) => {
                 </div>
               </Link>
             </li>
+            <li>
+              <Link href="/exercise">
+                <div className={cn(
+                  "w-full text-left px-4 py-3 rounded-lg flex items-center space-x-3 transition-colors",
+                  location === "/exercise"
+                    ? "bg-primary text-white"
+                    : "text-foreground hover:bg-secondary"
+                )}>
+                  <Dumbbell className="h-5 w-5" />
+                  <span>Exercise</span>
+                </div>
+              </Link>
+            </li>
           </ul>
         </nav>
       </div>
@@ -148,7 +162,7 @@ const SideNavigation: React.FC<SideNavigationProps> = ({ className }) => {
           disabled={isResetting}
         >
           <Repeat className="h-5 w-5" />
-          <span>Reset System</span>
+          <span>Reset Progress</span>
         </Button>
       </div>
     </aside>

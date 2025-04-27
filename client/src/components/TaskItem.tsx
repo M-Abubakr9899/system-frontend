@@ -70,8 +70,10 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
   return (
     <div 
       className={cn(
-        "task-transition bg-secondary rounded-lg p-4 border border-transparent hover:border-gray-700 mb-4",
-        { "completed": task.isCompleted }
+        "task-transition rounded-lg p-4 border border-transparent hover:border-gray-700 mb-4",
+        task.isCompleted 
+          ? "bg-secondary/50 opacity-70" 
+          : "bg-secondary"
       )}
     >
       <div className="flex justify-between">
@@ -85,8 +87,11 @@ const TaskItem: React.FC<TaskItemProps> = ({ task }) => {
             disabled={isPending || isDeleting}
             aria-label={task.isCompleted ? "Mark incomplete" : "Mark complete"}
           />
-          <div>
-            <h4 className="font-medium">{task.title}</h4>
+          <div className={task.isCompleted ? "relative" : ""}>
+            {task.isCompleted && (
+              <div className="absolute top-1/2 left-0 right-0 h-px bg-gray-500 transform -translate-y-1/2"></div>
+            )}
+            <h4 className={cn("font-medium", { "text-muted-foreground": task.isCompleted })}>{task.title}</h4>
             <p className="text-sm text-muted-foreground">
               {task.duration && `${task.duration} • `}+{task.points} points
             </p>

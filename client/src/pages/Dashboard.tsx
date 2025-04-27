@@ -1,28 +1,26 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Layout from '@/components/Layout';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiRequest } from '@/lib/queryClient';
-import { Task, Skill, User } from '@/lib/types';
+import { Task, User } from '@/lib/types';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { StatusCard, StatItem } from '@/components/StatusCard';
+import { Progress } from '@/components/ui/progress';
 import TaskItem from '@/components/TaskItem';
-import SkillItem from '@/components/SkillItem';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Zap, 
-  LightbulbIcon, 
   ClipboardList
 } from 'lucide-react';
 
 const Dashboard: React.FC = () => {
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
-  const [isAddSkillOpen, setIsAddSkillOpen] = useState(false);
-  const [newTask, setNewTask] = useState({ title: '', description: '', duration: '', points: 10 });
-  const [newSkill, setNewSkill] = useState({ name: '', level: 1, experience: 0, maxExperience: 100 });
+  const [newTask, setNewTask] = useState({ title: '', description: '', duration: '' });
+  const [dayPointsProgress, setDayPointsProgress] = useState(0);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -35,19 +33,55 @@ const Dashboard: React.FC = () => {
     queryKey: ['/api/tasks'],
   });
   
-  const { data: skills, isLoading: isSkillsLoading } = useQuery<Skill[]>({
-    queryKey: ['/api/skills'],
-  });
+  // Calculate daily points (based on today's completed tasks)
+  const dayPoints = tasks ? tasks.filter(task => task.isCompleted).length * 10 : 0;
+  
+  // Update the progress bar for daily points
+  useEffect(() => {
+    // Set max to 100 (for level up) or higher if they've earned more
+    const maxPoints = Math.max(100, dayPoints);
+    setDayPointsProgress((dayPoints / maxPoints) * 100);
+  }, [dayPoints]);
+  
+  // Setup auto reset of tasks at midnight
+  useEffect(() => {
+    const checkTime = () => {
+      const now = new Date();
+      if (now.getHours() === 0 && now.getMinutes() === 0) {
+        // It's midnight - reset tasks
+        resetAllTasks();
+      }
+    };
+    
+    const minuteTimer = setInterval(checkTime, 60000); // Check every minute
+    return () => clearInterval(minuteTimer);
+  }, []);
+  
+  const resetAllTasks = async () => {
+    try {
+      await apiRequest('POST', '/api/tasks/reset', {});
+      queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
+      toast({
+        title: "Tasks Reset",
+        description: "Daily tasks have been reset for the new day",
+        variant: "default",
+      });
+    } catch (error) {
+      console.error("Failed to reset tasks:", error);
+    }
+  };
   
   const { mutate: addTask, isPending: isAddingTask } = useMutation({
     mutationFn: async (taskData: typeof newTask) => {
-      const res = await apiRequest('POST', '/api/tasks', taskData);
+      // Always set points to 10
+      const taskWithPoints = { ...taskData, points: 10 };
+      const res = await apiRequest('POST', '/api/tasks', taskWithPoints);
       return res.json();
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['/api/tasks'] });
       setIsAddTaskOpen(false);
-      setNewTask({ title: '', description: '', duration: '', points: 10 });
+      setNewTask({ title: '', description: '', duration: '' });
       toast({
         title: "Task added",
         description: "New task has been added successfully",
@@ -57,30 +91,6 @@ const Dashboard: React.FC = () => {
     onError: (error) => {
       toast({
         title: "Error adding task",
-        description: String(error),
-        variant: "destructive",
-      });
-    }
-  });
-  
-  const { mutate: addSkill, isPending: isAddingSkill } = useMutation({
-    mutationFn: async (skillData: typeof newSkill) => {
-      const res = await apiRequest('POST', '/api/skills', skillData);
-      return res.json();
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['/api/skills'] });
-      setIsAddSkillOpen(false);
-      setNewSkill({ name: '', level: 1, experience: 0, maxExperience: 100 });
-      toast({
-        title: "Skill added",
-        description: "New skill has been added successfully",
-        variant: "default",
-      });
-    },
-    onError: (error) => {
-      toast({
-        title: "Error adding skill",
         description: String(error),
         variant: "destructive",
       });
@@ -99,26 +109,14 @@ const Dashboard: React.FC = () => {
     addTask(newTask);
   };
   
-  const handleAddSkill = () => {
-    if (!newSkill.name) {
-      toast({
-        title: "Missing information",
-        description: "Please provide a skill name",
-        variant: "destructive",
-      });
-      return;
-    }
-    addSkill(newSkill);
-  };
-  
   const completedTasks = tasks?.filter(task => task.isCompleted)?.length || 0;
   const totalTasks = tasks?.length || 0;
   
   return (
-    <Layout title="Dashboard" subtitle="Hunter Status">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        {/* Hunter Status Card */}
-        <StatusCard title="Hunter Status" icon={Zap}>
+    <Layout title="Dashboard" subtitle="Player Status">
+      <div className="mb-8">
+        {/* Status Card */}
+        <StatusCard title="Status" icon={Zap}>
           {isUserLoading ? (
             <div className="space-y-4 animate-pulse">
               <div className="h-4 bg-secondary rounded"></div>
@@ -130,16 +128,18 @@ const Dashboard: React.FC = () => {
               <StatItem 
                 label="Level" 
                 value={user?.level || 1} 
-                max={10} 
+                max={100} 
               />
               
-              <StatItem 
-                label="Points" 
-                value={user?.points || 0} 
-                showProgress={false} 
-              />
-              <div className="rounded-md bg-secondary p-2 text-center text-sm">
-                Next reward at <span className="text-primary">{((user?.points || 0) + 100) - ((user?.points || 0) % 100)}</span> points
+              <div className="space-y-2">
+                <div className="flex justify-between mb-1">
+                  <span className="text-sm text-muted-foreground">Daily Points</span>
+                  <span className="text-sm font-medium text-primary">{dayPoints} points</span>
+                </div>
+                <Progress value={dayPointsProgress} className="h-2" />
+                <p className="text-xs text-muted-foreground text-center">
+                  Points earned today
+                </p>
               </div>
               
               <StatItem 
@@ -162,39 +162,6 @@ const Dashboard: React.FC = () => {
                   ))}
                 </div>
               </div>
-            </div>
-          )}
-        </StatusCard>
-        
-        {/* Skills Card */}
-        <StatusCard title="Skills" icon={LightbulbIcon}>
-          <div className="flex justify-between items-center mb-4">
-            <Button 
-              variant="outline" 
-              size="sm"
-              className="text-xs px-2 py-1 bg-secondary text-primary border border-primary rounded-lg hover:bg-primary hover:text-white transition-colors"
-              onClick={() => setIsAddSkillOpen(true)}
-            >
-              + Add Skill
-            </Button>
-          </div>
-          
-          {isSkillsLoading ? (
-            <div className="space-y-4 animate-pulse">
-              <div className="h-4 bg-secondary rounded"></div>
-              <div className="h-2 bg-secondary rounded"></div>
-              <div className="h-4 bg-secondary rounded"></div>
-              <div className="h-2 bg-secondary rounded"></div>
-            </div>
-          ) : skills && skills.length > 0 ? (
-            <div className="space-y-4">
-              {skills.map(skill => (
-                <SkillItem key={skill.id} skill={skill} />
-              ))}
-            </div>
-          ) : (
-            <div className="text-center text-muted-foreground py-4">
-              No skills found. Add a new skill to get started.
             </div>
           )}
         </StatusCard>
@@ -269,16 +236,10 @@ const Dashboard: React.FC = () => {
               />
             </div>
             <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="task-points" className="text-right">Points</Label>
-              <Input 
-                id="task-points" 
-                type="number"
-                value={newTask.points}
-                onChange={(e) => setNewTask({...newTask, points: parseInt(e.target.value) || 0})}
-                className="col-span-3"
-                min={1}
-                max={100}
-              />
+              <Label className="text-right">Points</Label>
+              <div className="col-span-3 text-muted-foreground">
+                Each task is worth 10 points
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -293,53 +254,6 @@ const Dashboard: React.FC = () => {
               disabled={isAddingTask}
             >
               Add Task
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      {/* Add Skill Dialog */}
-      <Dialog open={isAddSkillOpen} onOpenChange={setIsAddSkillOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add New Skill</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="skill-name" className="text-right">Name</Label>
-              <Input 
-                id="skill-name" 
-                value={newSkill.name}
-                onChange={(e) => setNewSkill({...newSkill, name: e.target.value})}
-                className="col-span-3"
-                placeholder="Skill name"
-              />
-            </div>
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="skill-level" className="text-right">Level</Label>
-              <Input 
-                id="skill-level" 
-                type="number"
-                value={newSkill.level}
-                onChange={(e) => setNewSkill({...newSkill, level: parseInt(e.target.value) || 1})}
-                className="col-span-3"
-                min={1}
-                max={99}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <Button 
-              variant="outline" 
-              onClick={() => setIsAddSkillOpen(false)}
-            >
-              Cancel
-            </Button>
-            <Button 
-              onClick={handleAddSkill}
-              disabled={isAddingSkill}
-            >
-              Add Skill
             </Button>
           </DialogFooter>
         </DialogContent>
