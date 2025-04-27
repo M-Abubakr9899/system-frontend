@@ -7,6 +7,7 @@ import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/Dashboard";
 import TimeTable from "@/pages/TimeTable";
 import Rules from "@/pages/Rules";
+import Exercise from "@/pages/Exercise";
 
 function Router() {
   return (
@@ -14,6 +15,7 @@ function Router() {
       <Route path="/" component={Dashboard} />
       <Route path="/timetable" component={TimeTable} />
       <Route path="/rules" component={Rules} />
+      <Route path="/exercise" component={Exercise} />
       <Route component={NotFound} />
     </Switch>
   );

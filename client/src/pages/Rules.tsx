@@ -70,7 +70,7 @@ const Rules: React.FC = () => {
           <div className="flex justify-between items-center">
             <CardTitle className="text-xl font-semibold flex items-center">
               <Shield className="h-5 w-5 mr-2 text-primary" />
-              System Rules
+              Player Rules
             </CardTitle>
             <Button 
               variant="outline"
