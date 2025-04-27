@@ -1,0 +1,115 @@
+Create a system app inspired by Solo Leveling system (like Jinwoo's system) for real life use.
+
+The system should include:
+
+Tasks Section
+
+Exercises Section
+
+Points System (win points by completing tasks)
+
+Skills Section (only real-life skills, no anime-based ones).
+
+Customize and improve it by:
+
+Change the overall theme color to Red.
+
+I should be able to manually create and modify Available Tasks, but do not remove the default system tasks.
+
+When I click the Complete button on a task, the task section should become dull to show it’s completed.
+
+Remove fantasy skills like "Mana Control" and "Shadow Extraction".
+
+Add real-life skills: Intelligence and Stamina.
+
+Include these default daily tasks:
+
+Complete College Work (3 Hours)
+
+Learn Arabic, Quran (1 Hour)
+
+Write one Hades Everyday
+
+Typing Speed to 50 WPM (30 Min)
+
+Facebook Management Course (1 Hour)
+
+Python (1 Hour)
+
+Add a Rules Section and create a button to manually add new rules.
+
+Add a Skills Section with a button to manually add or remove skills.
+
+Make the system more flexible so that after all tasks are completed, the app still works properly (no blank screens).
+
+Remove the Custom Tasks section and replace it with a Reset System button.
+
+Reset Button must:
+
+Reset all player stats and hunter status to zero.
+
+Reset daily task completions.
+
+Do NOT reset skills or rules or daily tasks list.
+
+Fix problems:
+
+Reset button should work fully as mentioned above.
+
+Completed tasks should turn dull after clicking.
+
+Add the following default Rules inside Rules Section:
+
+Follow Time Table
+
+No Songs
+
+No Animes
+
+No Reels
+
+Sunnah and Time Sleeping (with Blanket)
+
+No staying up unnecessarily
+
+Reduce the frequency of bad habits
+
+No Junk or Fast Food
+
+Chew food properly
+
+Less talk, with low voice pitch
+
+Create a Side Navigation Panel to move between these tabs:
+
+Dashboard
+
+Time Table
+
+Rules
+
+Dashboard should contain:
+
+Hunter Status
+
+Skills
+
+Daily Tasks
+
+Move the Rules Section OUT of the Dashboard and into a separate tab in the side panel.
+
+When I click on Timetable, do not remove the Side Panel. The Side Panel should always stay visible and functional.
+
+Now Make the UI more better like add some glowing lights in background, fix the text arrangements and other small details , use the image that i link to get some more information.
+
+Create a progress bar with visuals.
+Build the same modern "Solo Leveling System" UI.
+Use TailwindCSS or modern React styling.
+
+Include Dashboard, Timetable, Rules pages.
+
+Add Hunter Status, Skills, Daily Tasks, etc.
+
+Add red theme and proper buttons, sidebars, animations.
+
+Make the task completion UI dull when clicked ✅.
